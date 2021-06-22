@@ -9,6 +9,8 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Aashish Thakran
@@ -23,7 +25,15 @@ public class GroceryService implements IGroceryService {
 
     @Override
     public void saveAll(@Valid List<Grocery> groceryList) {
-        groceryDao.saveAll(groceryList);
+        List<Grocery> updatedGroceryList = groceryList.stream()
+                .map(grocery -> {
+                    Optional<Grocery> savedGrocery = groceryDao.findByNameAndDate(grocery.getName(), grocery.getPriceDate());
+                    return grocery.toBuilder()
+                            .id(savedGrocery.isPresent() ? savedGrocery.get().getId() : null)
+                            .price(savedGrocery.isPresent() ? savedGrocery.get().getPrice() : grocery.getPrice())
+                            .build();
+                }).collect(Collectors.toList());
+        groceryDao.saveAll(updatedGroceryList);
     }
 
     @Override

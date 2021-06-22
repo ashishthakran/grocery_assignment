@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,5 +55,12 @@ public class GroceryDaoImpl implements IGroceryDao {
                 groceryEntityList.get().stream()
                         .map(GroceryMapper::mapToModel)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Grocery> findByNameAndDate(String name, LocalDate priceDate) {
+        Optional<GroceryDocument> groceryEntity = Optional.ofNullable(groceryRepository.findByNameAndPriceDate(name, priceDate));
+        return groceryEntity
+                .map(GroceryMapper::mapToModel);
     }
 }
